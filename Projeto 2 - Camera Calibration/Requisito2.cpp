@@ -9,7 +9,7 @@
 
 // Square size in millimeter
 const float square_size = 28.5;
-const int total_captures = 25;
+const int n_captures = 25;
 const std::chrono::milliseconds time_between_captures(1000);
 const cv::Size board_size(8, 6);
 
@@ -41,13 +41,13 @@ bool calibrateIntrinsics(cv::VideoCapture& cap, cv::Mat& camera_matrix, cv::Mat&
             image_points.push_back(chess_points);
 
             std::cout << "Chessboard image captured ( " << image_points.size()
-                      << " / " << total_captures << " )\n\n";
+                      << " / " << n_captures << " )\n\n";
         }
 
         drawChessboardCorners(frame, board_size, chess_points, found);
         cv::imshow("Calibrating intrinsics", frame);
 
-        if (image_points.size() == total_captures)
+        if (image_points.size() == n_captures)
         {
             // Calculate the object points
             std::vector<std::vector<cv::Point3f>> object_points(1);
@@ -60,7 +60,7 @@ bool calibrateIntrinsics(cv::VideoCapture& cap, cv::Mat& camera_matrix, cv::Mat&
             double rms = cv::calibrateCamera(object_points, image_points, frame.size(),
                                              camera_matrix, dist_coeffs, cv::noArray(), cv::noArray());
 
-            std::cout << "Re-projection error: "<< rms << std::endl;
+            std::cout << "Re-projection error: " << rms << std::endl;
 
             cv::destroyWindow("Calibrating intrinsics");
             return true;
@@ -106,22 +106,6 @@ void showUndistorted(cv::VideoCapture& cap, const cv::Mat& camera_matrix, const 
     } while ((char) cv::waitKey(33) < 0);
 }
 
-
-void saveParameter(const char* file_name, const char* tag_name, const cv::Mat& parameter)
-{
-    cv::FileStorage fs(file_name, cv::FileStorage::WRITE);
-
-    if (fs.isOpened())
-    {
-        fs << tag_name << parameter;
-        std::cout << tag_name << " salvo em " << file_name << std::endl;
-        fs.release();
-    }
-    else
-    {
-        std::cout << "Não foi possível abrir o arquivo " << file_name << std::endl;
-    }
-}
 
 int main(int argc, char** argv)
 {

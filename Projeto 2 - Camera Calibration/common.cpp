@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
@@ -55,4 +57,37 @@ void drawInfo(const cv::Mat& image, cv::Point p1, cv::Point p2, int distance, co
         text_orig.y = textSize.height;
 
     cv::putText(image, text, text_orig, font_face, font_scale, cv::Scalar(0, 255, 0), thickness);
+}
+
+
+void saveParameter(const char* file_name, const char* tag_name, const cv::Mat& parameter)
+{
+    cv::FileStorage fs(file_name, cv::FileStorage::WRITE);
+
+    if (fs.isOpened())
+    {
+        fs << tag_name << parameter;
+        std::cout << tag_name << " salvo em " << file_name << std::endl;
+        fs.release();
+    }
+    else
+    {
+        std::cout << "Não foi possível salvar no arquivo " << file_name << std::endl;
+    }
+}
+
+
+void readParameter(const char* file_name, const char* tag_name, cv::Mat& parameter)
+{
+    cv::FileStorage fs(file_name, cv::FileStorage::READ);
+
+    if (fs.isOpened())
+    {
+        fs[tag_name] >> parameter;
+        fs.release();
+    }
+    else
+    {
+        std::cout << "Não foi possível abrir o arquivo " << file_name << std::endl;
+    }
 }
