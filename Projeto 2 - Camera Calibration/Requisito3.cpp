@@ -62,16 +62,14 @@ int main(int argc, char** argv)
 {
     cv::Mat camera_matrix, dist_coeffs, rvec, tvec;
     char* file_name;
-    int real_distance;
 
-    if (argc != 3)
+    if (argc != 2)
     {
-        std::cout << "Numero de parametros." << std::endl;
+        std::cout << "Uso: ./Requisito3 arquivo_de_saída" << std::endl;
         return -1;
     }
 
     file_name = argv[1];
-    real_distance = atoi(argv[2]);
 
     cv::VideoCapture cap(0);
     if (!cap.isOpened())
@@ -91,11 +89,10 @@ int main(int argc, char** argv)
     calibrateExtrinsics(cap, camera_matrix, dist_coeffs, rvec, tvec);
 
     // Save the extrinsics parameter
-    cv::FileStorage fs("Requisito3_resultados/" + std::string(file_name), cv::FileStorage::WRITE);
+    cv::FileStorage fs(file_name, cv::FileStorage::WRITE);
 
     if (fs.isOpened())
     {
-        fs << "real_distance" << real_distance;
         fs << "rvec" << rvec;
         fs << "tvec" << tvec;
         fs << "tvec_norm" << cv::norm(tvec);
