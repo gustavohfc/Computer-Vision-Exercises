@@ -7,27 +7,47 @@
 
 #include "common.h"
 
-void f(const cv::Point image_point, const cv::Mat homography, cv::Point2f& plane_point)
+
+/* Converts a pointer coordinate in the image plane to a pointer in the chessboard plane.
+ *
+ * Parameters:
+ *      image_point - Coordinate in the image plain.
+ *      homography - Homography matrix generated from the intrisics and extrinsics parameters, H = K [r1, r2, t].
+ *      plane_point[out] - Coordinate in the chessboard plane.
+ */
+void imageToChessboardPlane(const cv::Point image_point, const cv::Mat homography, cv::Point2f& plane_point)
 {
+    // Convert euclidean to homogeneus coordinates
     cv::Mat image_point_homogeneous(1, 3, CV_64F);
     image_point_homogeneous.at<double>(0, 0) = image_point.x;
     image_point_homogeneous.at<double>(0, 1) = image_point.y;
     image_point_homogeneous.at<double>(0, 2) = 1;
 
+    // X = H^-1 * x
     cv::Mat plane_point_homogeneous = homography.inv() * image_point_homogeneous.t();
 
+    // Convert homogeneus to euclidean coordinates
     plane_point.x = plane_point_homogeneous.at<double>(0, 0) / plane_point_homogeneous.at<double>(0, 2);
     plane_point.y = plane_point_homogeneous.at<double>(0, 1) / plane_point_homogeneous.at<double>(0, 2);
 }
 
 
+/* Shows a image and allows the user to make measurements of objects in the image or video.
+ *
+ * Parameters:
+ *      window_name - Name of the window to display the image.
+ *      frame - Image or next frame of the video to be displayed.
+ *      homography - Homography matrix generated from the intrisics and extrinsics parameters, H = K [r1, r2, t].
+ *      line_points_image - Points to calculate the distance.
+ */
 void virtualRuler(const char* window_name, cv::Mat frame, const cv::Mat homography,
     const cv::Vec<cv::Point, 2> line_points_image)
 {
     cv::Vec<cv::Point2f, 2> line_points_plane;
 
-    f(line_points_image[0], homography, line_points_plane[0]);
-    f(line_points_image[1], homography, line_points_plane[1]);
+    // Convert the two points to the chessboard plane.
+    imageToChessboardPlane(line_points_image[0], homography, line_points_plane[0]);
+    imageToChessboardPlane(line_points_image[1], homography, line_points_plane[1]);
 
     drawInfo(frame, line_points_image[0], line_points_image[1],
         cv::norm(line_points_plane[0] - line_points_plane[1]), "mm");
@@ -46,7 +66,7 @@ int main(int argc, char** argv)
 
     if (argc != 2)
     {
-        std::cout << "Uso: ./Requisito3 arquivo_de_extrinsecos" << std::endl;
+        std::cout << "\n\n  Uso: ./Requisito3 arquivo_de_extrinsecos\n\n";
         return -1;
     }
     extrinsics_file_name = argv[1];
@@ -54,10 +74,11 @@ int main(int argc, char** argv)
     cv::VideoCapture cap(0);
     if (!cap.isOpened())
     {
-        std::cout << "Não foi possível abrir a câmera." << std::endl;
+        std::cout << "\n\nNão foi possível abrir a câmera.\n\n";
         return -1;
     }
 
+    // Read the necessery parameters
     readParameter("intrinsics.xml", "camera_matrix", camera_matrix);
     if (camera_matrix.empty())
         return -1;
@@ -71,13 +92,15 @@ int main(int argc, char** argv)
     if (rvec.empty() || tvec.empty())
         return -1;
 
+
+
     cv::namedWindow("raw", cv::WINDOW_AUTOSIZE);
     cv::setMouseCallback("raw", mouseCallbackFunc, &line_points_raw);
 
     cv::namedWindow("undistorted", cv::WINDOW_AUTOSIZE);
     cv::setMouseCallback("undistorted", mouseCallbackFunc, &line_points_undistorted);
 
-    // H = K [R1, R2, t]
+    // Calculate the Homography matrix, H = K [R1, R2, t]
     cv::Rodrigues(rvec, R);
     cv::hconcat(R.colRange(0, 2), tvec, RT);
     homography = camera_matrix * RT;

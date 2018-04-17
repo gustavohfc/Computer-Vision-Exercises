@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 
     if (!cap.isOpened())
     {
-        std::cout << "Não foi possível abrir a câmera." << std::endl;
+        std::cout << "\n\nNão foi possível abrir a câmera.\n\n";
         return -1;
     }
 

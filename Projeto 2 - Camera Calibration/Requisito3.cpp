@@ -6,11 +6,22 @@
 
 #include "common.h"
 
-// Square size in millimeter
+// Square side size in millimeter
 const float square_size = 28.5;
+
+// Chessboard pattern (8x6)
 const cv::Size board_size(8, 6);
 
 
+/* Calibrate the extrinsics parameter of the camera.
+ *
+ * Parameters:
+ *      cap - Input camera stream.
+ *      camera_matrix - Matrix of the intrisics paremeters.
+ *      dist_coeffs - Matrix of the distortion coefficients.
+ *      rvec - Rotation vector.
+ *      tvec - Translation vector.
+ */
 void calibrateExtrinsics(cv::VideoCapture& cap, const cv::Mat& camera_matrix, const cv::Mat& dist_coeffs,
     cv::Mat& rvec, cv::Mat& tvec)
 {
@@ -33,7 +44,7 @@ void calibrateExtrinsics(cv::VideoCapture& cap, const cv::Mat& camera_matrix, co
         drawChessboardCorners(draw_frame, board_size, chess_points, found);
         cv::imshow("Calibrating extrinsics", draw_frame);
 
-        // Check if any key was pressed
+        // Break the loop when the user press any key and the chessboard was found
         if ((char) cv::waitKey(33) > 0)
         {
             if (!found)
@@ -64,7 +75,7 @@ int main(int argc, char** argv)
 
     if (argc != 2)
     {
-        std::cout << "Uso: ./Requisito3 arquivo_de_saída" << std::endl;
+        std::cout << "\n\n  Uso: ./Requisito3 arquivo_de_saída\n\n";
         return -1;
     }
 
@@ -73,7 +84,7 @@ int main(int argc, char** argv)
     cv::VideoCapture cap(0);
     if (!cap.isOpened())
     {
-        std::cout << "Não foi possível abrir a câmera." << std::endl;
+        std::cout << "\n\nNão foi possível abrir a câmera.\n\n";
         return -1;
     }
 

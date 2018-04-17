@@ -5,6 +5,8 @@
 
 #include "common.h"
 
+/* Callback to mouse event.
+ */
 void mouseCallbackFunc(int event, int x, int y, int flags, void *data)
 {
     static bool selecting_first_point = true;
@@ -33,6 +35,14 @@ void mouseCallbackFunc(int event, int x, int y, int flags, void *data)
 }
 
 
+/* Draws a line and the distance information on the image.
+ *
+ * Parameters:
+ *      image - Matrix of the image pixels.
+ *      p1, p2 - Points to be connected with the line.
+ *      distance - Value of the distance to be displayed.
+ *      distance_unit - Measuring unit of the distance (Ex.: "mm", "pixels").
+ */
 void drawInfo(const cv::Mat& image, cv::Point p1, cv::Point p2, int distance, const char *distance_unit)
 {
     if (p2.x == -1)
@@ -60,6 +70,13 @@ void drawInfo(const cv::Mat& image, cv::Point p1, cv::Point p2, int distance, co
 }
 
 
+/* Saves a cv::Mat in a xml file.
+ *
+ * Parameters:
+ *      file_name - Name of the xml file.
+ *      tag_name - Name of the xml tag.
+ *      parameter - Value to be saved.
+ */
 void saveParameter(const char* file_name, const char* tag_name, const cv::Mat& parameter)
 {
     cv::FileStorage fs(file_name, cv::FileStorage::WRITE);
@@ -77,6 +94,13 @@ void saveParameter(const char* file_name, const char* tag_name, const cv::Mat& p
 }
 
 
+/* Reads a cv::Mat from a xml file.
+ *
+ * Parameters:
+ *      file_name - Name of the xml file.
+ *      tag_name - Name of the xml tag.
+ *      parameter[out] - Value of the tag read from the file.
+ */
 void readParameter(const char* file_name, const char* tag_name, cv::Mat& parameter)
 {
     cv::FileStorage fs(file_name, cv::FileStorage::READ);
