@@ -16,7 +16,6 @@ void calibrateExtrinsics(cv::VideoCapture& cap, const cv::Mat& camera_matrix, co
 {
     cv::Mat frame, draw_frame;
     std::vector<cv::Point2f> chess_points;
-    std::vector<std::vector<cv::Point2f>> image_points;
 
     cv::namedWindow("Calibrating extrinsics", cv::WINDOW_AUTOSIZE);
 
